@@ -58,6 +58,7 @@ public class TrabajadorRestController {
 		trabajadorActual.setCelular(trabajador.getCelular());
 		trabajadorActual.setDireccion(trabajador.getDireccion());
 		trabajadorActual.setEdad(trabajador.getEdad());
+		trabajadorActual.setDni(trabajador.getDni());
 		this.trabajadorService.save(trabajadorActual);
 		return trabajadorActual;
 	}
