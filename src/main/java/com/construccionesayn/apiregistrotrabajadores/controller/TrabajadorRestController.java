@@ -1,13 +1,12 @@
 package com.construccionesayn.apiregistrotrabajadores.controller;
 
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-
-import javax.validation.Valid;
-
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
-
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.construccionesayn.apiregistrotrabajadores.models.entity.Trabajador;
@@ -31,43 +29,152 @@ public class TrabajadorRestController {
 	private ITrabajadorService trabajadorService;
 
 	@GetMapping("/trabajadores")
-	public List<Trabajador> index() {
-		return this.trabajadorService.findAll();
+	public ResponseEntity<?> index() {
+		
+		List<Trabajador> trabajadores = null;
+		
+		Map<String, Object> response = new HashMap<>();
+		
+		try {
+			trabajadores = trabajadorService.findAll();
+		}catch(DataAccessException e) {
+			response.put("mensaje", "No se encontró los recursos.");
+			response.put("error",e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+			response.put("statuscode", "500");
+			response.put("data", null);
+			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		response.put("mensaje", "Se econtraron los recursos con éxito!");
+		response.put("error", null);
+		response.put("statuscode", "200");
+		response.put("data", trabajadores);
+		
+		return new ResponseEntity<Map<String, Object>>(response,HttpStatus.OK);
 	}
 
 	@GetMapping("/trabajadores/{id}")
-	public Trabajador show(@PathVariable Long id) {
-		return this.trabajadorService.findById(id);
+	public ResponseEntity<?> show(@PathVariable Long id) {
+		
+		Trabajador trabajador = null;
+		
+		Map<String, Object> response = new HashMap<>();
+		
+		try {
+			trabajador = trabajadorService.findById(id);
+		}catch(DataAccessException e) {
+			response.put("mensaje", "No se encontró el recurso.");
+			response.put("error",e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+			response.put("statuscode", "500");
+			response.put("data", null);
+			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		if(trabajador == null) {
+			response.put("mensaje", "No se encontró el recurso.");
+			response.put("error", "No se encontró el recurso.");
+			response.put("statuscode", "404");
+			response.put("data", null);
+			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.NOT_FOUND);
+		}
+		
+		response.put("mensaje", "Se econtró el recurso con éxito!");
+		response.put("error", null);
+		response.put("statuscode", "200");
+		response.put("data", trabajador);
+		
+		return new ResponseEntity<Map<String, Object>>(response,HttpStatus.OK);
 	}
 
 	@PostMapping("/trabajadores")
-	@ResponseStatus(HttpStatus.CREATED)
-	public Trabajador create(@RequestBody @Valid Trabajador trabajador) {
-		trabajador.setCreateAt(new Date());
-		this.trabajadorService.save(trabajador);
-		return trabajador;
+	public ResponseEntity<?> create(@RequestBody Trabajador trabajador) {
+		
+		Trabajador trabajadorNuevo = null;
+		Map<String, Object> response = new HashMap<>();
+		
+		try {
+			trabajadorNuevo = trabajadorService.save(trabajador);
+		} catch(DataAccessException e) {
+			response.put("mensaje", "Error al registrar el recurso.");
+			response.put("error",e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+			response.put("statuscode", "500");
+			response.put("data", null);
+			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		response.put("mensaje", "El recurso se registró correctamente!");
+		response.put("error", null);
+		response.put("statuscode", "201");
+		response.put("data", trabajadorNuevo);
+		
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 
 	@PutMapping("/trabajadores/{id}")
-	@ResponseStatus(HttpStatus.CREATED)
-	public Trabajador update(@RequestBody @Valid Trabajador trabajador, @PathVariable Long id) {
+	public ResponseEntity<?> update(@RequestBody Trabajador trabajador, @PathVariable Long id) {
+		
 		Trabajador trabajadorActual = this.trabajadorService.findById(id);
-		trabajadorActual.setNombres(trabajador.getNombres());
-		trabajadorActual.setApellidos(trabajador.getApellidos());
-		trabajadorActual.setEmail(trabajador.getEmail());
-		trabajadorActual.setCelular(trabajador.getCelular());
-		trabajadorActual.setDireccion(trabajador.getDireccion());
-		trabajadorActual.setEdad(trabajador.getEdad());
-		trabajadorActual.setDni(trabajador.getDni());
-		this.trabajadorService.save(trabajadorActual);
-		return trabajadorActual;
+		Trabajador trabajadorActualizado = null;
+		
+		Map<String, Object> response = new HashMap<>();
+		
+		if(trabajadorActual == null) {
+			response.put("mensaje", "No se pudo encontrar el recurso.");
+			response.put("error", "No se encontró el recurso.");
+			response.put("statuscode", "404");
+			response.put("data", null);
+			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.NOT_FOUND);
+		}
+		
+		try {
+			
+			trabajadorActual.setNombres(trabajador.getNombres());
+			trabajadorActual.setApellidos(trabajador.getApellidos());
+			trabajadorActual.setEmail(trabajador.getEmail());
+			trabajadorActual.setCelular(trabajador.getCelular());
+			trabajadorActual.setDireccion(trabajador.getDireccion());
+			trabajadorActual.setEdad(trabajador.getEdad());
+			trabajadorActual.setDni(trabajador.getDni());
+			
+			trabajadorActualizado = trabajadorService.save(trabajadorActual);
+			
+		} catch(DataAccessException e) {
+			response.put("mensaje", "Error al actualizar al recurso.");
+			response.put("error",e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+			response.put("statuscode", "500");
+			response.put("data", null);
+			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		
+		response.put("mensaje", "El recurso se actualizó correctamente!");
+		response.put("error", null);
+		response.put("statuscode", "201");
+		response.put("data", trabajadorActualizado);
+		
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 
 	@DeleteMapping("/trabajadores/{id}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void delete(@PathVariable Long id) {
-		Trabajador trabajadorActual = this.trabajadorService.findById(id);
-		this.trabajadorService.delete(trabajadorActual);
+	public ResponseEntity<?> delete(@PathVariable Long id) {
+		
+		Map<String, Object> response = new HashMap<>();
+		
+		try {
+			trabajadorService.delete(id);
+		} catch (DataAccessException e) {
+			response.put("mensaje", "Error al tratar de eliminar el recurso.");
+			response.put("error",e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+			response.put("statuscode", "500");
+			response.put("data", null);
+			return new ResponseEntity<Map<String, Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		response.put("mensaje", "El recurso se eliminó con éxito!");
+		response.put("error", null);
+		response.put("statuscode", "200");
+		response.put("data", null);
+		return new ResponseEntity<Map<String, Object>>(response,HttpStatus.OK);
 	}
 
 }

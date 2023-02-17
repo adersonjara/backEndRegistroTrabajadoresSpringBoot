@@ -10,9 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
+
 
 @Entity
 @Table(name = "trabajadores")
@@ -24,26 +23,23 @@ public class Trabajador implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@NotEmpty(message = "Los nombres son requeridos.")
+	@Column(nullable = false)
 	private String nombres;
 
-	@NotEmpty(message = "Los apellidos son requeridos.")
+	@Column(nullable = false)
 	private String apellidos;
 
-	@NotEmpty(message = "El email es requerido.")
-	@Email(message = "Email no válido.")
-	@Column(unique = true)
+	@Email()
+	@Column(unique = true,nullable = false)
 	private String email;
 
-	@NotEmpty(message = "El celular es requerido.")
 	private String celular;
 
 	private String edad;
 
 	private String direccion;
 
-	@Column(unique = true)
-	@NotEmpty(message = "El dni es requerido.")
+	@Column(unique = true,nullable = false)
 	private String dni;
 
 	@Column(name = "created_at")

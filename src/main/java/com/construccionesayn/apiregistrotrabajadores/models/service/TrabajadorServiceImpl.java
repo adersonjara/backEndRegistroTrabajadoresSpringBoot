@@ -23,8 +23,8 @@ public class TrabajadorServiceImpl implements ITrabajadorService {
 
 	@Override
 	@Transactional
-	public void save(Trabajador trabajador) {
-		trabajadorDao.save(trabajador);
+	public Trabajador save(Trabajador trabajador) {
+		return trabajadorDao.save(trabajador);
 
 	}
 
@@ -36,8 +36,8 @@ public class TrabajadorServiceImpl implements ITrabajadorService {
 
 	@Override
 	@Transactional
-	public void delete(Trabajador trabajador) {
-		trabajadorDao.delete(trabajador);
+	public void delete(Long id) {
+		trabajadorDao.deleteById(id);
 	}
 
 }
