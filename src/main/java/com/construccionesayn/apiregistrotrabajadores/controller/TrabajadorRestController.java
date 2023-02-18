@@ -3,10 +3,15 @@ package com.construccionesayn.apiregistrotrabajadores.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -87,13 +92,37 @@ public class TrabajadorRestController {
 	}
 
 	@PostMapping("/trabajadores")
-	public ResponseEntity<?> create(@RequestBody Trabajador trabajador) {
+	public ResponseEntity<?> create(@Valid @RequestBody Trabajador trabajador, BindingResult result) {
 		
 		Trabajador trabajadorNuevo = null;
 		Map<String, Object> response = new HashMap<>();
 		
+		if(result.hasErrors()) {
+			
+			/* Una forma de agregar los errores
+			 * List<String> errores = new ArrayList<>(); for(FieldError err:
+			 * result.getFieldErrors()) { errores.add(err.getDefaultMessage()); }
+			 * response.put("error", errores); 
+			 * return new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST);
+			 */
+			
+			/* Forma N° 2 */
+			
+			List<String> errores = result.getFieldErrors()
+									.stream()
+									.map(err -> "El '"+err.getField()+"' "+err.getDefaultMessage())
+									.collect(Collectors.toList());
+			
+			response.put("mensaje", "Valide correctamente la información del recurso.");
+			response.put("error", errores);
+			response.put("statuscode", "400");
+			response.put("data", null);
+			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST);
+		}
+		
 		try {
 			trabajadorNuevo = trabajadorService.save(trabajador);
+			trabajadorNuevo.setCreateAt(trabajador.getCreateAt());
 		} catch(DataAccessException e) {
 			response.put("mensaje", "Error al registrar el recurso.");
 			response.put("error",e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
@@ -111,12 +140,25 @@ public class TrabajadorRestController {
 	}
 
 	@PutMapping("/trabajadores/{id}")
-	public ResponseEntity<?> update(@RequestBody Trabajador trabajador, @PathVariable Long id) {
+	public ResponseEntity<?> update(@Valid @RequestBody Trabajador trabajador, BindingResult result, @PathVariable Long id) {
 		
 		Trabajador trabajadorActual = this.trabajadorService.findById(id);
 		Trabajador trabajadorActualizado = null;
 		
 		Map<String, Object> response = new HashMap<>();
+		
+		if(result.hasErrors()) {
+			List<String> errores = result.getFieldErrors()
+									.stream()
+									.map(err -> "El '"+err.getField()+"' "+err.getDefaultMessage())
+									.collect(Collectors.toList());
+			
+			response.put("mensaje", "Valide correctamente la información del recurso.");
+			response.put("error", errores);
+			response.put("statuscode", "400");
+			response.put("data", null);
+			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST);
+		}
 		
 		if(trabajadorActual == null) {
 			response.put("mensaje", "No se pudo encontrar el recurso.");

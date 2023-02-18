@@ -11,6 +11,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 
 @Entity
@@ -22,27 +26,41 @@ public class Trabajador implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	@Column(nullable = false)
+	
+	@NotEmpty
+	@Size(min = 2,max = 120)
+	@Column(nullable = false,length = 120)
 	private String nombres;
-
-	@Column(nullable = false)
+	
+	@NotEmpty
+	@Size(min = 2,max = 120)
+	@Column(nullable = false,length = 120)
 	private String apellidos;
-
-	@Email()
+	
+	@NotEmpty
+	@Email
+	@Size(min = 2,max = 255)
 	@Column(unique = true,nullable = false)
 	private String email;
-
+	
+	@Column(length = 9)
+	@Size(min = 9,max = 9)
 	private String celular;
-
+	
+	@Column(length = 3)
+	@Size(min = 1,max = 3)
 	private String edad;
-
+	
+	@Size(min = 4,max = 255)
 	private String direccion;
-
-	@Column(unique = true,nullable = false)
+	
+	@NotEmpty
+	@Column(unique = true,nullable = false,length = 8)
+	@Size(min = 8,max = 8)
 	private String dni;
 
-	@Column(name = "created_at")
+	@CreationTimestamp
+	@Column(name = "created_at", updatable = false)
 	private Date createAt;
 
 	public Trabajador() {
