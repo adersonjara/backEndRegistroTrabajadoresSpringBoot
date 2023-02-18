@@ -110,7 +110,7 @@ public class TrabajadorRestController {
 			
 			List<String> errores = result.getFieldErrors()
 									.stream()
-									.map(err -> "El '"+err.getField()+"' "+err.getDefaultMessage())
+									.map(err -> err.getDefaultMessage())
 									.collect(Collectors.toList());
 			
 			response.put("mensaje", "Valide correctamente la información del recurso.");
@@ -150,7 +150,7 @@ public class TrabajadorRestController {
 		if(result.hasErrors()) {
 			List<String> errores = result.getFieldErrors()
 									.stream()
-									.map(err -> "El '"+err.getField()+"' "+err.getDefaultMessage())
+									.map(err -> err.getDefaultMessage())
 									.collect(Collectors.toList());
 			
 			response.put("mensaje", "Valide correctamente la información del recurso.");

@@ -27,36 +27,36 @@ public class Trabajador implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@NotEmpty
-	@Size(min = 2,max = 120)
+	@NotEmpty(message = "Los nombres son requeridos.")
+	@Size(min = 2,max = 120, message = "Los nombres deben tener entre 2 y 120 caracteres.")
 	@Column(nullable = false,length = 120)
 	private String nombres;
 	
-	@NotEmpty
-	@Size(min = 2,max = 120)
+	@NotEmpty(message = "Los apellidos son requeridos.")
+	@Size(min = 2,max = 120, message = "Los apellidos deben tener entre 2 y 120 caracteres.")
 	@Column(nullable = false,length = 120)
 	private String apellidos;
 	
-	@NotEmpty
-	@Email
-	@Size(min = 2,max = 255)
+	@NotEmpty(message = "El email es requerido.")
+	@Email(message = "El email debe ser válido.")
+	@Size(min = 5,max = 255, message = "El email debe tener entre 5 y 255 caracteres.")
 	@Column(unique = true,nullable = false)
 	private String email;
 	
 	@Column(length = 9)
-	@Size(min = 9,max = 9)
+	@Size(min = 9,max = 9, message = "El celular deben tener 9 caracteres.")
 	private String celular;
 	
 	@Column(length = 3)
-	@Size(min = 1,max = 3)
+	@Size(min = 1,max = 3, message = "La edad debe ser válida.")
 	private String edad;
 	
-	@Size(min = 4,max = 255)
+	@Size(min = 4,max = 255, message = "La direccion debe tener entre 4 y 255 caracteres.")
 	private String direccion;
 	
-	@NotEmpty
+	@NotEmpty(message = "El dni es requerido.")
 	@Column(unique = true,nullable = false,length = 8)
-	@Size(min = 8,max = 8)
+	@Size(min = 8,max = 8, message = "El dni deben tener 8 caracteres.")
 	private String dni;
 
 	@CreationTimestamp
