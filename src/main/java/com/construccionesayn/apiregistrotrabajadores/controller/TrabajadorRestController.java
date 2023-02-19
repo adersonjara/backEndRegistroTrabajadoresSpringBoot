@@ -9,9 +9,11 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -97,6 +99,14 @@ public class TrabajadorRestController {
 		Trabajador trabajadorNuevo = null;
 		Map<String, Object> response = new HashMap<>();
 		
+		if(trabajadorService.findByEmail(trabajador.getEmail()).isPresent()) {
+			result.rejectValue("email", "error.trabajador","El email ya está registrado");
+		}
+		
+		if(trabajadorService.findByDni(trabajador.getDni()).isPresent()) {
+			result.rejectValue("dni", "error.trabajador","El dni ya está registrado");
+		}
+		
 		if(result.hasErrors()) {
 			
 			/* Una forma de agregar los errores
@@ -106,8 +116,7 @@ public class TrabajadorRestController {
 			 * return new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST);
 			 */
 			
-			/* Forma N° 2 */
-			
+			/* Forma N° 2 */			
 			List<String> errores = result.getFieldErrors()
 									.stream()
 									.map(err -> err.getDefaultMessage())
@@ -128,6 +137,9 @@ public class TrabajadorRestController {
 			response.put("error",e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			response.put("statuscode", "500");
 			response.put("data", null);
+			
+			
+
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
@@ -146,6 +158,14 @@ public class TrabajadorRestController {
 		Trabajador trabajadorActualizado = null;
 		
 		Map<String, Object> response = new HashMap<>();
+		
+		if(trabajadorService.findByEmail(trabajador.getEmail()).isPresent()) {
+			result.rejectValue("email", "error.trabajador","El email ya está registrado");
+		}
+		
+		if(trabajadorService.findByDni(trabajador.getDni()).isPresent()) {
+			result.rejectValue("dni", "error.trabajador","El dni ya está registrado");
+		}
 		
 		if(result.hasErrors()) {
 			List<String> errores = result.getFieldErrors()

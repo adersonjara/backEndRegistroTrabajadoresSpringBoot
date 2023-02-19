@@ -1,2 +1,2 @@
-INSERT INTO trabajadores (apellidos, celular, created_at, direccion, edad, email, nombres, dni) VALUES ('Jara Lazaro', '987146123', '2023-02-10 00:00:00', 'JR RAMON CASTILLA 220', '26', 'aderson@gmail.com', 'Aderson Felix', '80529632');
-INSERT INTO trabajadores (apellidos, celular, created_at, direccion, edad, email, nombres, dni) VALUES ('Luhan Llauri', '963258741', '2023-02-10 00:00:00', 'JR CARLOS DE LOS EROS 1021', '30', 'luhan@gmail.com', 'Alejandro Luis', '70215489');
+INSERT INTO trabajadores (apellidos, celular, created_at, direccion, edad, email, nombres, dni) VALUES ('Jara Lazaro', '987146123', '2023-02-10 10:35:41', 'JR RAMON CASTILLA 220', '26', 'aderson@gmail.com', 'Aderson Felix', '80529632');
+INSERT INTO trabajadores (apellidos, celular, created_at, direccion, edad, email, nombres, dni) VALUES ('Luhan Llauri', '963258741', '2023-02-14 18:24:15', 'JR CARLOS DE LOS EROS 1021', '30', 'luhan@gmail.com', 'Alejandro Luis', '70215489');

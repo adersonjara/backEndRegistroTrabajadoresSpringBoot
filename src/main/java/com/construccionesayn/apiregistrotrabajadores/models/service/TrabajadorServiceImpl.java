@@ -1,6 +1,7 @@
 package com.construccionesayn.apiregistrotrabajadores.models.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,16 @@ public class TrabajadorServiceImpl implements ITrabajadorService {
 	@Transactional
 	public void delete(Long id) {
 		trabajadorDao.deleteById(id);
+	}
+	
+	@Override
+	public Optional<Trabajador> findByEmail(String email){
+		return trabajadorDao.findByEmail(email);
+	}
+	
+	@Override
+	public Optional<Trabajador> findByDni(String dni){
+		return trabajadorDao.findByDni(dni);
 	}
 
 }
