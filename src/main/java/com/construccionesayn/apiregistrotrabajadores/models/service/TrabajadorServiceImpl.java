@@ -2,11 +2,9 @@ package com.construccionesayn.apiregistrotrabajadores.models.service;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.construccionesayn.apiregistrotrabajadores.models.dao.ITrabajadorDao;
 import com.construccionesayn.apiregistrotrabajadores.models.entity.Trabajador;
 
@@ -26,7 +24,6 @@ public class TrabajadorServiceImpl implements ITrabajadorService {
 	@Transactional
 	public Trabajador save(Trabajador trabajador) {
 		return trabajadorDao.save(trabajador);
-
 	}
 
 	@Override

@@ -3,17 +3,12 @@ package com.construccionesayn.apiregistrotrabajadores.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
 import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +18,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.construccionesayn.apiregistrotrabajadores.models.entity.Trabajador;
 import com.construccionesayn.apiregistrotrabajadores.models.service.ITrabajadorService;
 
@@ -39,16 +33,19 @@ public class TrabajadorRestController {
 	public ResponseEntity<?> index() {
 		
 		List<Trabajador> trabajadores = null;
-		
 		Map<String, Object> response = new HashMap<>();
 		
 		try {
+			
 			trabajadores = trabajadorService.findAll();
+		
 		}catch(DataAccessException e) {
+			
 			response.put("mensaje", "No se encontró los recursos.");
 			response.put("error",e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			response.put("statuscode", "500");
 			response.put("data", null);
+			
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
@@ -64,25 +61,31 @@ public class TrabajadorRestController {
 	public ResponseEntity<?> show(@PathVariable Long id) {
 		
 		Trabajador trabajador = null;
-		
 		Map<String, Object> response = new HashMap<>();
 		
 		try {
+			
 			trabajador = trabajadorService.findById(id);
+		
 		}catch(DataAccessException e) {
+			
 			response.put("mensaje", "No se encontró el recurso.");
 			response.put("error",e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			response.put("statuscode", "500");
 			response.put("data", null);
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+		
 		}
 		
 		if(trabajador == null) {
+			
 			response.put("mensaje", "No se encontró el recurso.");
 			response.put("error", "No se encontró el recurso.");
 			response.put("statuscode", "404");
 			response.put("data", null);
+			
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.NOT_FOUND);
+			
 		}
 		
 		response.put("mensaje", "Se econtró el recurso con éxito!");
@@ -98,6 +101,7 @@ public class TrabajadorRestController {
 		
 		Trabajador trabajadorNuevo = null;
 		Map<String, Object> response = new HashMap<>();
+		Map<String, Object> errores = new HashMap<>();
 		
 		if(trabajadorService.findByEmail(trabajador.getEmail()).isPresent()) {
 			result.rejectValue("email", "error.trabajador","El email ya está registrado");
@@ -117,30 +121,38 @@ public class TrabajadorRestController {
 			 */
 			
 			/* Forma N° 2 */			
-			List<String> errores = result.getFieldErrors()
-									.stream()
-									.map(err -> err.getDefaultMessage())
-									.collect(Collectors.toList());
+			/*
+			 * List<String> errores = result.getFieldErrors() .stream() .map(err ->
+			 * err.getDefaultMessage()) .collect(Collectors.toList());
+			 */
+			
+//			Forma 03 Para validar en el front end campo por campo
+			result.getFieldErrors().forEach(err -> {
+				errores.put(err.getField(), err.getDefaultMessage());
+			});
 			
 			response.put("mensaje", "Valide correctamente la información del recurso.");
 			response.put("error", errores);
 			response.put("statuscode", "400");
 			response.put("data", null);
+			
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST);
+			
 		}
 		
 		try {
+			
 			trabajadorNuevo = trabajadorService.save(trabajador);
-			trabajadorNuevo.setCreateAt(trabajador.getCreateAt());
+			
 		} catch(DataAccessException e) {
+			
 			response.put("mensaje", "Error al registrar el recurso.");
 			response.put("error",e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			response.put("statuscode", "500");
-			response.put("data", null);
-			
-			
+			response.put("data", null);			
 
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+			
 		}
 		
 		response.put("mensaje", "El recurso se registró correctamente!");
@@ -157,35 +169,48 @@ public class TrabajadorRestController {
 		Trabajador trabajadorActual = this.trabajadorService.findById(id);
 		Trabajador trabajadorActualizado = null;
 		
-		Map<String, Object> response = new HashMap<>();
+		 //System.out.println("trabajadorActual:    "+);
+		 //System.out.println("trabajadorParametro: "+trabajador.getEmail());
 		
-		if(trabajadorService.findByEmail(trabajador.getEmail()).isPresent()) {
+		Map<String, Object> response = new HashMap<>();
+		Map<String, Object> errores = new HashMap<>();
+		
+		if(trabajadorService.findByEmail(trabajador.getEmail()).isPresent() && !trabajadorActual.getEmail().equals(trabajador.getEmail()) ) {
 			result.rejectValue("email", "error.trabajador","El email ya está registrado");
 		}
 		
-		if(trabajadorService.findByDni(trabajador.getDni()).isPresent()) {
+		if(trabajadorService.findByDni(trabajador.getDni()).isPresent() && !trabajadorActual.getDni().equals(trabajador.getDni()) ) {
 			result.rejectValue("dni", "error.trabajador","El dni ya está registrado");
 		}
 		
 		if(result.hasErrors()) {
-			List<String> errores = result.getFieldErrors()
-									.stream()
-									.map(err -> err.getDefaultMessage())
-									.collect(Collectors.toList());
+//			List<String> errores = result.getFieldErrors()
+//									.stream()
+//									.map(err -> err.getDefaultMessage())
+//									.collect(Collectors.toList());
+			
+			result.getFieldErrors().forEach(err -> {
+				errores.put(err.getField(), err.getDefaultMessage());
+			});
 			
 			response.put("mensaje", "Valide correctamente la información del recurso.");
 			response.put("error", errores);
 			response.put("statuscode", "400");
 			response.put("data", null);
+			
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST);
+			
 		}
 		
 		if(trabajadorActual == null) {
+			
 			response.put("mensaje", "No se pudo encontrar el recurso.");
 			response.put("error", "No se encontró el recurso.");
 			response.put("statuscode", "404");
 			response.put("data", null);
+			
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.NOT_FOUND);
+			
 		}
 		
 		try {
@@ -201,11 +226,14 @@ public class TrabajadorRestController {
 			trabajadorActualizado = trabajadorService.save(trabajadorActual);
 			
 		} catch(DataAccessException e) {
+			
 			response.put("mensaje", "Error al actualizar al recurso.");
 			response.put("error",e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			response.put("statuscode", "500");
 			response.put("data", null);
+			
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+			
 		}
 		
 		
@@ -215,6 +243,7 @@ public class TrabajadorRestController {
 		response.put("data", trabajadorActualizado);
 		
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+		
 	}
 
 	@DeleteMapping("/trabajadores/{id}")
@@ -223,20 +252,27 @@ public class TrabajadorRestController {
 		Map<String, Object> response = new HashMap<>();
 		
 		try {
+			
 			trabajadorService.delete(id);
+			
 		} catch (DataAccessException e) {
+			
 			response.put("mensaje", "Error al tratar de eliminar el recurso.");
 			response.put("error",e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			response.put("statuscode", "500");
 			response.put("data", null);
+			
 			return new ResponseEntity<Map<String, Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+			
 		}
 		
 		response.put("mensaje", "El recurso se eliminó con éxito!");
 		response.put("error", null);
 		response.put("statuscode", "200");
 		response.put("data", null);
+		
 		return new ResponseEntity<Map<String, Object>>(response,HttpStatus.OK);
+		
 	}
 
 }
