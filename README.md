@@ -1,4 +1,4 @@
-# Registro de Trabajadores - API REST FULL
+# Registro de Trabajadores
 
 Controller, Repository, Entity, Service, Validations, Swagger.
 
